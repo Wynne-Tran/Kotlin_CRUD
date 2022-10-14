@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-
+    id 'kotlin-kapt'
 }
 
 android {
@@ -38,6 +38,8 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.room:room-common:2.4.3'
+
     // https://developer.android.com/jetpack/androidx/releases/lifecycle#kotlin
     def lifecycle_version = "2.6.0-alpha02"
     def room_version = "2.2.3"
