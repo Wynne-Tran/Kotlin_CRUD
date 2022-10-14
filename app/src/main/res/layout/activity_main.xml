@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="myViewModel"
+            type="com.example.roomdemo.SubscriberViewModel" />
+    </data>
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="15dp"
@@ -16,6 +21,7 @@
         android:layout_margin="15dp"
         android:layout_marginBottom="5dp"
         android:ems="10"
+        android:text="@={myViewModel.inputName}"
         android:hint="Subscriber's"
         android:inputType="textPersonName"
         android:textStyle="bold" />
@@ -27,6 +33,7 @@
         android:layout_margin="15dp"
         android:layout_marginTop="5dp"
         android:ems="10"
+        android:text="@={myViewModel.inputEmail}"
         android:hint="Subscriber's email"
         android:inputType="textPersonName"
         android:textStyle="bold" />
@@ -43,18 +50,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Save"
+            android:text="@={myViewModel.saveOrUpdateText}"
+            android:onClick="@{()->myViewModel.saveOrUpdate()}"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginRight="2dp"
+            />
 
         <Button
             android:id="@+id/Clear_or_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Delete"
+            android:text="@={myViewModel.clearOrDeleteText}"
+            android:onClick="@{()->myViewModel.clearAllOrDelete()}"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginLeft="2dp"
+            />
 
     </LinearLayout>
 
@@ -65,3 +78,4 @@
         android:layout_margin="5dp"
         android:layout_weight="1" />
 </LinearLayout>
+</layout>
