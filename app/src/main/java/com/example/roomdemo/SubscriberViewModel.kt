@@ -1,5 +1,6 @@
 package com.example.roomdemo
 
+import android.util.Patterns
 import androidx.databinding.Bindable
 import androidx.databinding.Observable
 import androidx.lifecycle.LiveData
@@ -16,6 +17,7 @@ class SubscriberViewModel(private val repository: SubscriberRepository) : ViewMo
     // 2 variable to update and delete
     private var isUpdateOrDelete = false
     private lateinit var subcriberToUpdateOrDelete : Subscriber
+
 
     // when use bindable data we have to add code inside activity_main
     @Bindable
@@ -41,18 +43,27 @@ class SubscriberViewModel(private val repository: SubscriberRepository) : ViewMo
     // to run this func, create "onClick" in main_activity
 
     fun saveOrUpdate(){
-        if(isUpdateOrDelete){
-            subcriberToUpdateOrDelete.name = inputName.value!!
-            subcriberToUpdateOrDelete.email = inputEmail.value!!
-            update(subcriberToUpdateOrDelete)
+        if(inputName.value == null){
+            statusMessage.value = Event("input name cannot null")
+        } else if (inputEmail.value == null) {
+            statusMessage.value = Event("input email cannot null")
 
-        }
-        else {
-            val name = inputName.value!!
-            val email = inputEmail.value!!
-            insert(Subscriber(0, name, email))
-            inputName.value = null
-            inputEmail.value = null
+        } else if(!Patterns.EMAIL_ADDRESS.matcher(inputEmail.value!!).matches()) {
+            statusMessage.value = Event("email format error !")
+        } else {
+            if(isUpdateOrDelete){
+                subcriberToUpdateOrDelete.name = inputName.value!!
+                subcriberToUpdateOrDelete.email = inputEmail.value!!
+                update(subcriberToUpdateOrDelete)
+
+            }
+            else {
+                val name = inputName.value!!
+                val email = inputEmail.value!!
+                insert(Subscriber(0, name, email))
+                inputName.value = null
+                inputEmail.value = null
+            }
         }
     }
 
@@ -66,30 +77,44 @@ class SubscriberViewModel(private val repository: SubscriberRepository) : ViewMo
     }
 
     fun insert(subscriber: Subscriber) {
-        viewModelScope.launch { repository.insert(subscriber) }
-        statusMessage.value = Event("Subscriber Inserted Successfully")
+        viewModelScope.launch {
+            val newRowId = repository.insert(subscriber)
+            if(newRowId > -1) {
+                statusMessage.value = Event("Subscriber Inserted Successfully $newRowId")
+            } else {
+                statusMessage.value = Event("Error Occurred")
+            }
+        }
     }
     fun update (subscriber: Subscriber) {
         viewModelScope.launch {
-            repository.update(subscriber)
-            inputName.value = null
-            inputEmail.value = null
-            isUpdateOrDelete = false
-            saveOrUpdateText.value = "Save"
-            clearOrDeleteText.value = "Clear All"
-            statusMessage.value = Event("Subscriber Updated Successfully")
+            val numOfRow = repository.update(subscriber)
+            if(numOfRow >= 0) {
+                inputName.value = null
+                inputEmail.value = null
+                isUpdateOrDelete = false
+                saveOrUpdateText.value = "Save"
+                clearOrDeleteText.value = "Clear All"
+                statusMessage.value = Event("Subscriber Updated Successfully $numOfRow")
+            } else {
+                statusMessage.value = Event("Something went wrong !")
+            }
 
         }
     }
     fun delete (subscriber: Subscriber) {
         viewModelScope.launch {
-            repository.delete(subscriber)
-            inputName.value = null
-            inputEmail.value = null
-            isUpdateOrDelete = false
-            saveOrUpdateText.value = "Save"
-            clearOrDeleteText.value = "Clear All"
-            statusMessage.value = Event("Subscriber Deleted Successfully")
+            val numOfRow = repository.delete(subscriber)
+            if(numOfRow >= 0) {
+                inputName.value = null
+                inputEmail.value = null
+                isUpdateOrDelete = false
+                saveOrUpdateText.value = "Save"
+                clearOrDeleteText.value = "Clear All"
+                statusMessage.value = Event("Subscriber Deleted Successfully $numOfRow")
+            } else {
+                statusMessage.value = Event("Something wrong $numOfRow")
+            }
 
         }
     }
